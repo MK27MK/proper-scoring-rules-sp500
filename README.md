@@ -38,10 +38,10 @@ $s$ is therefore a function that assigns a penalty to a probabilistic forecast, 
 
 #### General case
 
-Suppose an event can fall into $R$ mutually exclusive classes. Let $f_i$ denote the forecast probability for class $i$, and $o_i$ the observed outcome, where $o_i = 1$ if class $i$ occurred, $0$ otherwise. The Brier score for a single observation is defined as:
+Suppose an event can fall into $R$ mutually exclusive classes. Let $p_i$ denote the forecast probability for class $i$, and $o_i$ the observed outcome, where $o_i = 1$ if class $i$ occurred, $0$ otherwise. The Brier score for a single observation is defined as:
 
 $$
-\text{BS} =\sum_{i=1}^{R}(f_i - o_i)^2
+\text{BS} =\sum_{i=1}^{R}(p_i - o_i)^2
 $$
 
 #### Binary case
@@ -49,15 +49,15 @@ $$
 In the binary case ($R = 2$), there are two classes: event $E$ occurs ($i = 1$), or it does not ($i = 2$). We can therefore write a simplified formulation using the indicator $|E|$:
 
 $$
-\text{BS} = (f - |E|)^2
+\text{BS} = (p - |E|)^2
 $$
 
 > [!TIP]
-> Suppose we want to forecast the event R="It will rain tomorrow", assigning it a probability $f$:
+> Suppose we want to forecast the event R="It will rain tomorrow", assigning it a probability $p$:
 >
-> - $f = 1 \text{ and it rains} \Rightarrow \text{BS} = (1-1)^2 = 0$. The best possible score.
-> - $f = 1 \text{ and it does not rain} \Rightarrow \text{BS} = (0-1)^2 = 1$. The worst possible score.
-> - $f = 0.5 \text{ and (it rains or not)} \Rightarrow \text{BS} = (1 - 0.5)^2=(0-0.5)^2=0.25$. In this case the score is $0.25$ regardless of the observed outcome.
+> - $p = 1 \text{ and it rains} \Rightarrow \text{BS} = (1-1)^2 = 0$. The best possible score.
+> - $p = 1 \text{ and it does not rain} \Rightarrow \text{BS} = (0-1)^2 = 1$. The worst possible score.
+> - $p = 0.5 \text{ and (it rains or not)} \Rightarrow \text{BS} = (1 - 0.5)^2=(0-0.5)^2=0.25$. In this case the score is $0.25$ regardless of the observed outcome.
 
 > [!IMPORTANT]
 > When applying the general formula to the binary case, the result will be **twice** that obtained via the simplified formulation.
@@ -68,10 +68,10 @@ Note that the Brier score, in the best case — i.e., when the forecast probabil
 
 #### General case
 
-As with the Brier score, suppose an event can fall into $R$ mutually exclusive classes, with $f_i$ the forecast probability and $o_i$ the observed outcome for class $i$. The Logarithmic score for a single observation is defined as:
+As with the Brier score, suppose an event can fall into $R$ mutually exclusive classes, with $p_i$ the forecast probability and $o_i$ the observed outcome for class $i$. The Logarithmic score for a single observation is defined as:
 
 $$
-\text{LS} = -\sum_{i=1}^{R} o_i\log(f_i)
+\text{LS} = -\sum_{i=1}^{R} o_i\log(p_i)
 $$
 
 #### Binary case
@@ -79,18 +79,18 @@ $$
 In the binary case ($R = 2$), the formula reduces to:
 
 $$
-\text{LS} = -\left[|E| \cdot\log(f) + (1 - |E|)\cdot\log(1 - f)\right]
+\text{LS} = -\left[|E| \cdot\log(p) + (1 - |E|)\cdot\log(1 - p)\right]
 $$
 
 > [!TIP]
-> Consider again the event R="It will rain tomorrow", with forecast probability $f$:
+> Consider again the event R="It will rain tomorrow", with forecast probability $p$:
 >
-> - $f = 1 \text{ and it rains} \Rightarrow \text{LS} = -\left[1 \cdot \log(1) + 0  \cdot \log(0) \right]=-\log(1) = 0$. The best possible score.
-> - $f = 0.5 \text{ and it rains} \Rightarrow \text{LS} = -\log(0.5) \approx 0.693$.
-> - $f = 0.01 \text{ and it rains} \Rightarrow \text{LS} = -\log(0.01) \approx 4.605$. Very high penalty.
+> - $p = 1 \text{ and it rains} \Rightarrow \text{LS} = -\left[1 \cdot \log(1) + 0  \cdot \log(0) \right]=-\log(1) = 0$. The best possible score.
+> - $p = 0.5 \text{ and it rains} \Rightarrow \text{LS} = -\log(0.5) \approx 0.693$.
+> - $p = 0.01 \text{ and it rains} \Rightarrow \text{LS} = -\log(0.01) \approx 4.605$. Very high penalty.
 
 > [!IMPORTANT]
-> Unlike the Brier score, the Logarithmic score is **not bounded above**: a forecast $f \to 0$ for an event that actually occurs yields $\text{LS} \to +\infty$. This makes the log score particularly harsh towards "dishonest" forecasts.
+> Unlike the Brier score, the Logarithmic score is **not bounded above**: a forecast $p \to 0$ for an event that actually occurs yields $\text{LS} \to +\infty$. This makes the log score particularly harsh towards "dishonest" forecasts.
 
 ---
 

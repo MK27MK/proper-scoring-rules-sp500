@@ -19,7 +19,7 @@ Prima di introdurre la definizione di **scoring rule**, rispolveriamo quella di 
 > In particolare:
 >
 > - $\Omega$ è lo spazio campionario, l'insieme dei casi elementari.
-> - $\mathcal{F}$ Insieme di eventi costituente una $\sigma$-algebra rispetto a $\Omega$.
+> - $\mathcal{F}$ Insieme di eventi, costituente una $\sigma$-algebra rispetto a $\Omega$.
 > - $P$ è una funzione di probabilità che assegna ad ogni evento $E \in \mathcal{F}$ una probabilità $p \in [0,1]$.
 
 Ora, ipotizziamo di non avere un'unica funzione di probabilità $P$, bensì un insieme $\mathcal{P}$ di funzioni di probabilità definite su $(\Omega, \mathcal{F})$. A questo punto, possiamo definire una generica **scoring rule** $s$ come:
@@ -36,10 +36,10 @@ $s$ è quindi una funzione che assegna una penalizzazione a una previsione proba
 
 #### Caso generico
 
-Supponiamo che un evento possa ricadere in $R$ classi incompatibili. Indichiamo con $f_i$ la probabilità prevista per la classe $i$, e con $o_i$ l'esito osservato, dove $o_i = 1$ se si è verificata la classe $i$, $0$ altrimenti. Il Brier score per una singola osservazione è definito come:
+Supponiamo che un evento possa ricadere in $R$ classi incompatibili. Indichiamo con $p_i$ la probabilità prevista per la classe $i$, e con $o_i$ l'esito osservato, dove $o_i = 1$ se si è verificata la classe $i$, $0$ altrimenti. Il Brier score per una singola osservazione è definito come:
 
 $$
-\text{BS} =\sum_{i=1}^{R}(f_i - o_i)^2
+\text{BS} =\sum_{i=1}^{R}(p_i - o_i)^2
 $$
 
 #### Caso binario
@@ -47,15 +47,15 @@ $$
 Nel caso binario ($R = 2$), le classi sono due: l'evento, che definiamo con $E$, si verifica ($i = 1$), oppure no ($i = 2$). Pertanto, possiamo definire una formulazione semplificata utilizzando l'indicatore $|E|$:
 
 $$
-\text{BS} = (f - |E|)^2
+\text{BS} = (p - |E|)^2
 $$
 
 > [!TIP]
-> Supponiamo di voler prevedere l'evento R="Domani pioverà", assegnandogli una probabilità $f$:
+> Supponiamo di voler prevedere l'evento R="Domani pioverà", assegnandogli una probabilità $p$:
 >
-> - $f = 1 \text{ e piove} \Rightarrow \text{BS} = (1-1)^2 = 0$. Il miglior punteggio possibile.
-> - $f = 1 \text{ e non piove} \Rightarrow \text{BS} = (0-1)^2 = 1$. Il peggior punteggio possibile.
-> - $f = 0.5 \text{ e (piove o non piove)} \Rightarrow \text{BS} = (1 - 0.5)^2=(0-0.5)^2=0.25$. In questo caso il punteggio è uguale a $0.25$ a prescindere dall'esito osservato.
+> - $p = 1 \text{ e piove} \Rightarrow \text{BS} = (1-1)^2 = 0$. Il miglior punteggio possibile.
+> - $p = 1 \text{ e non piove} \Rightarrow \text{BS} = (0-1)^2 = 1$. Il peggior punteggio possibile.
+> - $p = 0.5 \text{ e (piove o non piove)} \Rightarrow \text{BS} = (1 - 0.5)^2=(0-0.5)^2=0.25$. In questo caso il punteggio è uguale a $0.25$ a prescindere dall'esito osservato.
 
 > [!IMPORTANT]
 > Applicando la formula generica al caso binario, il risultato sarà uguale al **doppio** di quello ottenuto tramite formulazione semplificata.
@@ -66,10 +66,10 @@ Notiamo che il Brier score, nel migliore dei casi, ovvero quello con probabilit�
 
 #### Caso generico
 
-Supponiamo, come per il Brier score, che un evento possa ricadere in $R$ classi incompatibili, con $f_i$ probabilità prevista e $o_i$ esito osservato per la classe $i$. Il Logarithmic score per una singola osservazione è definito come:
+Supponiamo, come per il Brier score, che un evento possa ricadere in $R$ classi incompatibili, con $p_i$ probabilità prevista e $o_i$ esito osservato per la classe $i$. Il Logarithmic score per una singola osservazione è definito come:
 
 $$
-\text{LS} = -\sum_{i=1}^{R} o_i\log(f_i)
+\text{LS} = -\sum_{i=1}^{R} o_i\log(p_i)
 $$
 
 #### Caso binario
@@ -77,18 +77,18 @@ $$
 Nel caso binario ($R = 2$), la formula si riduce a:
 
 $$
-\text{LS} = -\left[|E| \cdot\log(f) + (1 - |E|)\cdot\log(1 - f)\right]
+\text{LS} = -\left[|E| \cdot\log(p) + (1 - |E|)\cdot\log(1 - p)\right]
 $$
 
 > [!TIP]
-> Riprendiamo l'evento R="Domani pioverà", con probabilità prevista $f$:
+> Riprendiamo l'evento R="Domani pioverà", con probabilità prevista $p$:
 >
-> - $f = 1 \text{ e piove} \Rightarrow \text{LS} = -\left[1 \cdot \log(1) + 0  \cdot \log(0) \right]=-\log(1) = 0$. Il miglior punteggio possibile.
-> - $f = 0.5 \text{ e piove} \Rightarrow \text{LS} = -\log(0.5) \approx 0.693$.
-> - $f = 0.01 \text{ e piove} \Rightarrow \text{LS} = -\log(0.01) \approx 4.605$. Penalizzazione molto alta.
+> - $p = 1 \text{ e piove} \Rightarrow \text{LS} = -\left[1 \cdot \log(1) + 0  \cdot \log(0) \right]=-\log(1) = 0$. Il miglior punteggio possibile.
+> - $p = 0.5 \text{ e piove} \Rightarrow \text{LS} = -\log(0.5) \approx 0.693$.
+> - $p = 0.01 \text{ e piove} \Rightarrow \text{LS} = -\log(0.01) \approx 4.605$. Penalizzazione molto alta.
 
 > [!IMPORTANT]
-> A differenza del Brier score, il Logarithmic score **non è limitato superiormente**: una previsione $f \to 0$ per un evento che poi si verifica produce $\text{LS} \to +\infty$. Questo rende il log score particolarmente severo nei confronti di previsioni "bugiarde".
+> A differenza del Brier score, il Logarithmic score **non è limitato superiormente**: una previsione $p \to 0$ per un evento che poi si verifica produce $\text{LS} \to +\infty$. Questo rende il log score particolarmente severo nei confronti di previsioni "bugiarde".
 
 ---
 
