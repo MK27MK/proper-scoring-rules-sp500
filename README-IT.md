@@ -2,10 +2,10 @@
 
 ## Come eseguire
 
-Dalle directory del progetto:
+Dalla directory del progetto:
 
 ```bash
-Rscript scoring_rules_sp500.R
+Rscript src/main.R
 ```
 
 ---
@@ -22,11 +22,38 @@ Prima di introdurre la definizione di **scoring rule**, rispolveriamo quella di 
 > - $\mathcal{F}$ Insieme di eventi, costituente una $\sigma$-algebra rispetto a $\Omega$.
 > - $P$ è una funzione di probabilità che assegna ad ogni evento $E \in \mathcal{F}$ una probabilità $p \in [0,1]$.
 
+## Definizione di Scoring rule
+
 Ora, ipotizziamo di non avere un'unica funzione di probabilità $P$, bensì un insieme $\mathcal{P}$ di funzioni di probabilità definite su $(\Omega, \mathcal{F})$. A questo punto, possiamo definire una generica **scoring rule** $s$ come:
 
 $$s: \mathcal{P}\times\Omega \rightarrow \mathbb{R}$$
 
 $s$ è quindi una funzione che assegna una penalizzazione a una previsione probabilistica, determinata da una funzione di probabilità $P \in \mathcal{P}$, sulla base dell'esito effettivamente osservato.
+
+### Properness
+
+Una scoring rule si dice **appropriata** se il punteggio atteso è **minimizzato** quando la distribuzione di probabilità valutata dal previsore corrisponde a quella che decide di annunciare.
+
+In altre parole, il previsore è incoraggiato a riportare il suo effettivo **grado di fiducia** al fine di minimizzare la penalizzazione.
+
+> [!WARNING]
+> Ricorda che le scoring rule sono funzioni di penalizzazione aventi orientamento negativo, pertanto, minore è il punteggio atteso $\mathbb{E}[s(P, \omega)]$, meglio è.
+
+Formalmente, siano $P$ la distribuzione che il previsore valuta ($P$ è sincera), e $Q$ una qualsiasi distribuzione alternativa che il previsore annuncia. La scoring rule $s$ è **appropriata** se:
+
+$$
+\mathbb{E}_{P}[s(P, \omega)] \leq \mathbb{E}_{P}[s(Q, \omega)] \quad \text{per ogni } P, Q \in \mathcal{P}
+$$
+
+Ovvero se la penalizzazione media della distribuzione vera $P$, è **al più** uguale a quella della distribuzione $Q$.
+
+#### Strict Properness
+
+Se l'uguaglianza:
+
+$$\mathbb{E}_{P}[s(P, \omega)] = \mathbb{E}_{P}[s(Q, \omega)]$$
+
+Vale solo per $P=Q$, allora la scoring rule è **strettamente appropriata**.
 
 ---
 
@@ -60,7 +87,7 @@ $$
 > [!IMPORTANT]
 > Applicando la formula generica al caso binario, il risultato sarà uguale al **doppio** di quello ottenuto tramite formulazione semplificata.
 
-Notiamo che il Brier score, nel migliore dei casi, ovvero quello con probabilità prevista **coincidente** all'esito osservato, sarà uguale a $0$. Tenerlo a mente ci tornerà utile nella definizione di **scoring rule propria**.
+Notiamo che il Brier score, nel migliore dei casi, ovvero quello con probabilità prevista **coincidente** all'esito osservato, sarà uguale a $0$. Tenerlo a mente ci tornerà utile nella definizione di **scoring rule appropriata**.
 
 ### Logarithmic Score
 
@@ -92,31 +119,6 @@ $$
 
 ---
 
-### Properness
-
-Una scoring rule è propria se il punteggio atteso è **minimizzato** quanto la distribuzione di probabilità prevista corrisponde a quella effettiva.
-
-> [!WARNING]
-> Ricorda che le scoring rule sono funzioni di penalizzazione aventi orientamento negativo, pertanto, minore è il punteggio atteso $\mathbb{E}[s(P, \omega)]$, meglio è.
-
-Formalmente, siano $P$ la distribuzione vera e $Q$ una qualsiasi distribuzione alternativa utilizzata come previsione. La scoring rule $s$ è **propria** se:
-
-$$
-\mathbb{E}_{P}[s(P, \omega)] \leq \mathbb{E}_{P}[s(Q, \omega)] \quad \text{per ogni } P, Q \in \mathcal{P}
-$$
-
-Ovvero se la penalizzazione media della distribuzione vera $P$, è **al più** uguale a quella della distribuzione $Q$.
-
-#### Strict Properness
-
-Se l'uguaglianza:
-
-$$\mathbb{E}_{P}[s(P, \omega)] = \mathbb{E}_{P}[s(Q, \omega)]$$
-
-Vale solo per $P=Q$, allora la scoring rule è **strettamente propria**.
-
----
-
 ## Setup sperimentale
 
 ### Dati
@@ -127,8 +129,7 @@ Dai prezzi di chiusura si calcolano i rendimenti aritmetici giornalieri:
 
 $$r_t = \frac{P_t - P_{t-1}}{P_{t-1}}$$
 
-- **Training set**: 2015-2019
-- **Test set**: 2020-2024
+La valutazione delle strategie avviene sull'intera serie storica: ogni previsione $p_t$ viene formulata utilizzando esclusivamente informazioni disponibili fino al giorno $t-1$, evitando così il *look-ahead bias*.
 
 ### Evento binario
 
@@ -136,13 +137,12 @@ $$Y_t = \begin{cases} 1 & \text{se il rendimento del giorno } t \text{ è positi
 
 ### Strategie di previsione
 
-Ogni strategia produce una probabilità $p \in (0, 1)$ di rialzo:
+Ogni strategia produce una probabilità $p_t \in (0, 1)$ di rialzo per il giorno $t$:
 
-1. **Naive**: $p_N = 0.5$, funge da benchmark.
+1. **Naive**: $p_t = 0.5$ costante, funge da benchmark.
 
-2. **Frequentista**: $p_F = \frac{\text{n di rendimenti positivi}}{\text{n di rendimenti}}$. Intuitivamente, potrebbe avere un leggero vantaggio rispetto alla naive, considerando la tendenza rialzista dell'S&P.
-
-3. **Disonesta**: Prende la stima frequentista e la esagera: se $p_F > 0.5 \Rightarrow p_D = 0.9$, altrimenti $p_D = 0.1$.
+2. **Cumulative** (frequenza cumulata): media cumulata degli esiti passati.
+3. **MovingAvg10** (media mobile): frequenza di rialzi nella finestra degli ultimi $10$ giorni.
 
 ---
 
@@ -152,11 +152,11 @@ Il codice produce una tabella riassuntiva a terminale e quattro grafici PNG nell
 
 ### Tabella riassuntiva
 
-| Strategia    | Mean Brier | Mean Log |
-| ------------ | ---------- | -------- |
-| Naive        | 0.25000    | 0.69315  |
-| Frequentista | 0.24857    | 0.69029  |
-| Disonesta    | 0.37977    | 1.12094  |
+| Strategia   | Mean Brier | Mean Log |
+| ----------- | ---------- | -------- |
+| Naive       | 0.25000    | 0.69315  |
+| Cumulative  | 0.24951    | 0.69676  |
+| MovingAvg10 | 0.27196    | 0.74583  |
 
 ### Brier Score cumulato
 
@@ -176,5 +176,6 @@ Il codice produce una tabella riassuntiva a terminale e quattro grafici PNG nell
 
 ## Conclusioni
 
-Dal momento che $p_F \rightarrow p_N = 0.5$, la strategia Frequentista e Naive ottengono score simili.
-Risulta apprezzabile la penalizzazione della strategia **Disonesta** da parte di entrambe le scoring rules. Questo risultato fornisce una conferma empirica della proprietà di **properness**.
+Dal momento che la frequenza cumulata di rialzi $p_t^{\text{Cum}}$ si stabilizza molto vicino a $0.5$, la strategia **Cumulative** e la **Naive** ottengono score pressoché equivalenti, con una lieve penalizzazione della Cumulative sul log score dovuta alla maggiore variabilità nelle prime osservazioni.
+
+La **MovingAvg10**, nonostante sia più reattiva, paga il rumore della finestra corta: produce stime più lontane da $0.5$ e viene punita dalle scoring rules.
